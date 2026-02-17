@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Owner Dashboard - PlantShield</title>
+    <link rel="stylesheet" href="css/style.css?v=1.3">
+    <link rel="stylesheet" href="css/shop_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <button type="button" class="mobile-toggle" title="Toggle menu" onclick="toggleMobileMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- 1. Inventory Management -->
+            <div id="ssec-inventory" class="view-section dashboard-grid">
+                <div class="glass-panel inventory-panel">
+                    <h2><i class="fa-solid fa-boxes-stacked"></i> Manage Inventory</h2>
+                    <form id="add-product-form" class="add-product-form" onsubmit="addProduct(event)">
+                        <input type="hidden" id="prod-id">
+                        <div class="form-group">
+                            <label for="prod-category">Product Category</label>
+                            <select id="prod-category" title="Select product category" required>
+                                <option value="Fertilizer">Fertilizer</option>
+                                <option value="Pesticide">Pesticide</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-name">Product Name</label>
+                            <input type="text" id="prod-name" placeholder="Name (e.g. Neem Oil)" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-disease">Link to Disease (Optional)</label>
+                            <input type="text" id="prod-disease" placeholder="e.g. Tomato Blight">
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-image">Product Image</label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="prod-image" placeholder="Image URL will appear here..."
+                                    style="flex:1;">
+                                <input type="file" id="prod-image-file" accept="image/*" style="display:none;"
+                                    onchange="uploadProductImage(this)">
+                                <button type="button" class="btn btn-outline"
+                                    onclick="document.getElementById('prod-image-file').click()" title="Upload Image">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                </button>
+                            </div>
+                            <div id="upload-preview" style="margin-top: 1rem; display: none;">
+                                <img id="preview-img" src=""
+                                    style="max-height: 150px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                            </div>
+                        </div>
+                        <div class="form-row">
+
+                            <div class="form-group">
+                                <label for="prod-stock">Stock Qty</label>
+                                <input type="number" id="prod-stock" placeholder="Enter quantity" required min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-price">Price (₹)</label>
+                                <input type="number" id="prod-price" placeholder="Enter price" required min="0">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full-width">Add / Update Product</button>
+                    </form>
+                </div>
+
+                <div class="glass-panel inventory-list-panel">
+                    <h2>My Products</h2>
+                    <div id="shop-inventory-list" class="history-list">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Orders & Status -->
+            <div id="ssec-orders" class="view-section hidden">
+                <h2 class="glass-border-bottom section-title"><i class="fa-solid fa-truck-fast"></i>
+                    Incoming Orders</h2>
+                <div class="glass-panel orders-panel">
+                    <table class="orders-table">
+                        <thead>
+                            <tr class="table-header-row">
+                                <th>Order ID</th>
+                                <th>Farmer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shop-orders-list">
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. Sales Analytics -->
+            <div id="ssec-analytics" class="view-section hidden">
+                <h2 class="glass-border-bottom section-title"><i class="fa-solid fa-chart-line"></i>
+                    Sales Analytics</h2>
+
+                <div class="dashboard-grid analytics-grid">
+                    <div class="glass-panel stat-card">
+                        <h3>Total Revenue</h3>
+                        <h1 class="stat-value revenue">₹45,200</h1>
+                        <p class="stat-change">+12% this month</p>
+                    </div>
+                    <div class="glass-panel stat-card">
+                        <h3>Orders Completed</h3>
+                        <h1 class="stat-value orders">128</h1>
+                    </div>
+                </div>
+
+                <div class="glass-panel chart-panel">
+                    <h3>Monthly Sales Trend</h3>
+                    <div style="height: 300px;">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Farmer Queries -->
+            <div id="ssec-queries" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-comments"></i> Farmer
+                    Queries</h2>
+                <div id="queries-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="glass-panel" style="padding: 1rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <h4>Farmer: Ramesh</h4>
+                            <small>2 mins ago</small>
+                        </div>
+                        <p style="margin: 0.5rem 0;">Do you have stock of Urea for 50 acres?</p>
+                        <div style="margin-top: 0.5rem;">
+                            <input type="text" placeholder="Reply..." style="padding: 0.5rem; width: 70%;">
+                            <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Reply</button>
+                            <button class="btn btn-outline" style="padding: 0.5rem 1rem;">AI Suggest</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Profile -->
+            <div id="ssec-profile" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-store"></i>
+                    Shop
+                    Profile</h2>
+                <div class="glass-panel" style="padding: 2rem; max-width: 600px;">
+                    <form id="shop-profile-form" onsubmit="updateShopProfile(event)">
+                        <div class="form-group">
+                            <label>Shop Name</label>
+                            <input type="text" id="shop-name" value="Green Agro Store">
+                        </div>
+                        <div class="form-group">
+                            <label>License Number</label>
+                            <input type="text" id="shop-license" value="AGRO-TN-1234">
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="shop-location" value="Coimbatore, TN">
+                        </div>
+                        <div class="form-group">
+                            <label>UPI ID (For Payments)</label>
+                            <input type="text" id="shop-upi" value="shop@upi">
+                        </div>
+                        <div class="form-group">
+                            <label>New Password (Optional)</label>
+                            <input type="password" id="shop-password" placeholder="Leave blank to keep current">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Details</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 6. Notifications -->
+            <div id="ssec-notifications" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-bell"></i>
+                    Alerts
+                </h2>
+                <div class="glass-panel" style="padding: 1rem; border-left: 4px solid var(--danger);">
+                    <h4>Low Stock Alert</h4>
+                    <p>Neem Oil is running low (Only 2 left).</p>
+                </div>
+            </div>
+
+            <!-- 7. Help & Support (Common) -->
+            <div id="help-view" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-headset"></i> Help &
+                    Support</h2>
+                <div class="dashboard-grid">
+                    <div class="glass-panel" style="padding: 2rem;">
+                        <h3>Create Support Ticket</h3>
+                        <form id="shop-support-form" onsubmit="alert('Ticket submitted!'); event.preventDefault();">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input type="text" required placeholder="Issue regarding...">
+                            </div>
+                            <div class="form-group">
+                                <label>Message</label>
+                                <textarea rows="5" required placeholder="Describe your issue..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                        </form>
+                    </div>
+                    <div class="glass-panel" style="padding: 2rem;">
+                        <h3>Contact Admin</h3>
+                        <p>Email: support@plantshield.com</p>
+                        <p>Phone: +91 98765 43210</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/app.js?v=1.2"></script>
+    <script src="js/modern_ui.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            // Ensure Sidebar renders for Shop Owner
+            // This is usually handled by login redirect seeing 'shop_owner' role
+        });
+    </script>
+</body>
+
+</html>

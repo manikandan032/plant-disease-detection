@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard - PlantShield</title>
+    <link rel="stylesheet" href="css/style.css?v=1.3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF for Invoice Customization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Mobile Toggle -->
+    <button type="button" class="mobile-toggle" onclick="toggleMobileMenu()" title="Toggle mobile menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="app-layout">
+        <!-- Sidebar Container (Populated by JS) -->
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- 1. Treatment / Diagnose Section -->
+            <div id="fsec-diagnose" class="view-section dashboard-grid">
+                <!-- Upload Section -->
+                <div class="glass-panel" style="padding: 2rem;">
+                    <h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-leaf"></i> Analyze Plant</h2>
+                    <div class="upload-zone" id="drop-zone">
+                        <p style="margin-bottom: 1rem; font-size: 2rem;">📷</p>
+                        <p>Click or Drag plant image here</p>
+                        <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    </div>
+                    <img id="preview" class="preview-image" alt="Preview">
+                    <button id="analyze-btn" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" disabled>
+                        <i class="fa-solid fa-microscope"></i> Detect Disease
+                    </button>
+
+                    <div style="margin-top: 2rem;">
+                        <h3>Tips</h3>
+                        <ul style="color: var(--text-muted); margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Ensure good lighting</li>
+                            <li>Focus on the affected leaf</li>
+                            <li>Avoid blurry images</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="glass-panel" style="padding: 2rem;">
+                    <h2 style="margin-bottom: 1.5rem;">Diagnosis Result</h2>
+                    <div id="loading-spinner" class="hidden"
+                        style="text-align: center; padding: 2rem; color: var(--primary);">
+                        <i class="fa-solid fa-circle-notch fa-spin fa-3x"></i>
+                        <p style="margin-top: 1rem;">AI analyzing leaf patterns...</p>
+                    </div>
+
+                    <div id="result-card" class="result-card">
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <h3 id="disease-name" style="font-size: 2rem; color: var(--primary);">Healthy</h3>
+                            <div class="confidence-meter">
+                                <div id="confidence-bar" class="meter-fill" style="width: 0%"></div>
+                            </div>
+                            <p style="margin-top: 0.5rem; color: var(--text-muted);">Confidence: <span
+                                    id="confidence-text">0%</span> | Severity: <span id="severity-text"
+                                    style="color:var(--accent)">Low</span></p>
+                        </div>
+
+                        <div
+                            style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <h4 style="color: var(--accent); margin-bottom: 0.5rem;"><i
+                                    class="fa-solid fa-file-medical"></i> Symptoms & Cause</h4>
+                            <p id="disease-desc" style="color: var(--text-muted); line-height: 1.6;">No data.</p>
+                        </div>
+
+                        <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px;">
+                            <h4 style="color: var(--secondary); margin-bottom: 0.5rem;"><i
+                                    class="fa-solid fa-kit-medical"></i> Recommended Treatment</h4>
+                            <p id="disease-treat" style="color: var(--text-muted); line-height: 1.6;">No data.</p>
+
+                            <h5 style="margin-top: 1rem; color: var(--text-main);">Preventive Measures:</h5>
+                            <ul id="preventive-measures" style="margin-left: 1.5rem; color: var(--text-muted);">
+                                <li>No data.</li>
+                            </ul>
+
+                            <button
+                                onclick="handleNavigation('fsec-market', document.querySelector('.nav-item[data-target=\'fsec-market\']'))"
+                                class="btn btn-outline" style="width: 100%; margin-top: 1rem;">
+                                <i class="fa-solid fa-cart-plus"></i> Buy Recommended Products
+                            </button>
+                            <button onclick="downloadReport()" class="btn btn-primary"
+                                style="width: 100%; margin-top: 1rem;">
+                                <i class="fa-solid fa-file-pdf"></i> Download Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Weather Risk Alerts -->
+            <div id="fsec-weather" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-cloud-sun-rain"></i>
+                    Weather Risk & Forecast</h2>
+
+                <div class="dashboard-grid">
+                    <div class="glass-panel" style="padding: 2rem; text-align: center;">
+                        <h3 style="color: var(--text-muted);">Current Weather</h3>
+                        <div id="weather-icon" style="font-size: 4rem; margin: 1rem 0;">🌤️</div>
+                        <h1 id="weather-temp" style="font-size: 3rem;">28°C</h1>
+                        <p id="weather-desc">Partly Cloudy</p>
+                        <div style="display: flex; justify-content: space-around; margin-top: 1.5rem;">
+                            <span>💧 Hum: <span id="weather-humidity">65%</span></span>
+                            <span>💨 Wind: <span id="weather-wind">12km/h</span></span>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel" style="padding: 2rem;">
+                        <h3 style="color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Disease Risk
+                            Alerts</h3>
+                        <div id="weather-alerts"
+                            style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Dynamic Alerts -->
+                            <div class="alert-box"
+                                style="background: rgba(231, 76, 60, 0.2); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--danger);">
+                                <strong>High Humidity Alert!</strong>
+                                <p style="font-size: 0.9rem;">Conditions favorable for Fungal Blight. Apply preventive
+                                    fungicide.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel" style="margin-top: 2rem; padding: 2rem;">
+                    <h3>7-Day Forecast</h3>
+                    <div id="forecast-container"
+                        style="display: flex; gap: 1rem; overflow-x: auto; margin-top: 1rem; padding-bottom: 1rem;">
+                        <!-- JS Injected Forecast Cards -->
+                        <p>Loading forecast...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Crop Health History -->
+            <div id="fsec-history" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i
+                        class="fa-solid fa-clock-rotate-left"></i> Crop Health History</h2>
+
+                <div class="glass-panel" style="padding: 2rem; margin-bottom: 2rem;">
+                    <h3>Health Trend Analysis</h3>
+                    <div style="height: 300px; margin-top: 1rem;">
+                        <canvas id="healthChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <input type="text" id="history-search" placeholder="Search by crop or disease..." style="flex: 1;">
+                    <select id="history-filter" style="width: 200px;">
+                        <option value="all">All Crops</option>
+                        <option value="Tomato">Tomato</option>
+                        <option value="Potato">Potato</option>
+                        <option value="Corn">Corn</option>
+                    </select>
+                </div>
+
+                <div id="history-container" class="history-list">
+                    <!-- History Cards injected by JS -->
+                </div>
+            </div>
+
+            <!-- 4. Marketplace -->
+            <div id="fsec-market" class="view-section hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;"
+                    class="glass-border-bottom">
+                    <h2><i class="fa-solid fa-store"></i> Marketplace</h2>
+                    <button onclick="toggleCart()" class="btn btn-primary">
+                        <i class="fa-solid fa-cart-shopping"></i> View Cart <span id="cart-badge"
+                            style="background:red; padding:2px 6px; border-radius:50%; font-size:0.8rem;">0</span>
+                    </button>
+                </div>
+
+                <div id="market-list"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                    <!-- Products injected by JS -->
+                </div>
+            </div>
+
+            <!-- 5. Orders -->
+            <div id="fsec-orders" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-box"></i> My Orders</h2>
+                <div class="glass-panel" style="overflow-x: auto; border-radius: 12px;">
+                    <table>
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="farmer-orders-list">
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. Notifications REMOVED -->
+            <div id="fsec-notifications" class="view-section hidden"></div>
+
+            <!-- 7. Help & Support -->
+            <div id="help-view" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-headset"></i> Help &
+                    Support</h2>
+
+                <div class="dashboard-grid">
+                    <div class="glass-panel" style="padding: 2rem;">
+                        <h3>Create Support Ticket</h3>
+                        <form id="support-form" onsubmit="submitTicket(event)">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input type="text" id="ticket-subject" required placeholder="Issue regarding...">
+                            </div>
+                            <div class="form-group">
+                                <label>Message</label>
+                                <textarea id="ticket-message" rows="5" required
+                                    placeholder="Describe your issue..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-panel" style="padding: 2rem;">
+                        <h3>FAQ</h3>
+                        <details style="margin-bottom: 1rem; cursor: pointer;">
+                            <summary style="font-weight: 600; color: var(--primary);">How do I scan a leaf?</summary>
+                            <p style="margin-top: 0.5rem; color: var(--text-muted);">Go to the 'Diagnose' tab, click the
+                                camera icon to upload or take a photo of the affected leaf.</p>
+                        </details>
+                        <details style="margin-bottom: 1rem; cursor: pointer;">
+                            <summary style="font-weight: 600; color: var(--primary);">How do I buy fertilizers?
+                            </summary>
+                            <p style="margin-top: 0.5rem; color: var(--text-muted);">Visit the Marketplace, add items to
+                                your cart, and checkout using UPI.</p>
+                        </details>
+                        <h3>Contact Admin</h3>
+                        <p>Email: support@plantshield.com</p>
+                        <p>Phone: +91 98765 43210</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Profile -->
+            <div id="fsec-profile" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-user"></i> My Profile
+                </h2>
+                <div class="glass-panel" style="padding: 2rem; max-width: 600px;">
+                    <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                        <div
+                            style="width: 100px; height: 100px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h3 id="profile-name" style="font-size: 1.5rem;">Farmer Name</h3>
+                            <p id="profile-email" style="color: var(--text-muted);">farmer@example.com</p>
+                            <p class="role-badge"
+                                style="background: var(--accent); display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: black; margin-top: 0.5rem;">
+                                Farmer</p>
+                        </div>
+                    </div>
+
+                    <form id="profile-form" onsubmit="updateProfile(event)">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="profile-location" placeholder="Village / City">
+                        </div>
+                        <div class="form-group">
+                            <label>Crops Grown</label>
+                            <input type="text" id="profile-crops" placeholder="e.g. Tomato, Potato">
+                        </div>
+                        <div class="form-group">
+                            <label>New Password (Optional)</label>
+                            <input type="password" id="profile-password" placeholder="Leave blank to keep current">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Chatbot Page Interface (Requested as separate page but also available as widget) -->
+            <div id="fsec-chatbot" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-robot"></i> AI
+                    Agriculture Assistant</h2>
+                <div class="glass-panel" style="height: 60vh; display: flex; flex-direction: column;">
+                    <div id="full-chat-messages"
+                        style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;">
+                        <div class="chat-msg bot-msg">Hello! Ask me anything about your crops in English or Tamil.</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="full-chat-input" placeholder="Ask a question..."
+                            onkeypress="if(event.key === 'Enter') sendFullChatQuery()">
+                        <button class="btn btn-primary" onclick="sendFullChatQuery()">Send</button>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <h3>Sample Questions:</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                        <button class="btn btn-outline" onclick="fillChat('Best fertilizer for Tomato?')">Best
+                            fertilizer for Tomato?</button>
+                        <button class="btn btn-outline" onclick="fillChat('How to cure leaf blight?')">How to cure leaf
+                            blight?</button>
+                        <button class="btn btn-outline"
+                            onclick="fillChat('தக்காளி இலை சுருட்டலை தடுப்பது எப்படி?')">தக்காளி இலை சுருட்டலை தடுப்பது
+                            எப்படி?</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="chat-window hidden"
+        style="height:auto; max-height:80vh; overflow-y:auto; top:10%; right:10%; width: 400px; transform:none;">
+        <div class="chat-header">
+            <span>🛒 Shopping Cart</span>
+            <span style="cursor: pointer;" onclick="toggleCart()">✕</span>
+        </div>
+        <div id="cart-items" style="padding:1rem;">
+            <p>Cart is empty</p>
+        </div>
+        <div style="padding:1rem; border-top:1px solid #eee;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                <strong>Total:</strong>
+                <span id="cart-total">₹0</span>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Payment Method:</label>
+                <div style="display: flex; gap: 1rem;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="pay-method" value="UPI" checked> UPI
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="pay-method" value="Card"> Credit/Debit Card
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="initiateCheckout()" class="btn btn-primary" style="width:100%;">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="pay-modal" class="glass-panel hidden"
+        style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:1000; padding:2rem; text-align:center;">
+        <h3 style="margin-bottom:1rem;">Scan with UPI App</h3>
+        <div id="qrcode"
+            style="background:white; padding:1rem; margin-bottom:1rem; width: 200px; height: 200px; margin: 0 auto;">
+        </div>
+        <p id="pay-amount" style="font-size:1.5rem; margin:1rem 0; font-weight: bold;">₹0</p>
+        <p style="color:var(--text-muted); margin-bottom:1rem;">Shop UPI: <span id="pay-to"></span></p>
+        <button onclick="closePayModal()" class="btn btn-outline">Close</button>
+    </div>
+
+    <!-- Card Payment Modal -->
+    <div id="card-modal" class="glass-panel hidden"
+        style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:1000; padding:2rem; width: 400px;">
+        <h3 style="margin-bottom:1.5rem; color: var(--primary);"><i class="fa-regular fa-credit-card"></i> Card Payment
+        </h3>
+        <form onsubmit="processCardPayment(event)">
+            <div class="form-group">
+                <label>Card Number</label>
+                <input type="text" placeholder="1234 5678 9101 1121" required pattern="[0-9\s]{13,19}" maxlength="19"
+                    title="Card number">
+            </div>
+            <div style="display:flex; gap:1rem;">
+                <div class="form-group">
+                    <label>Expiry</label>
+                    <input type="text" placeholder="MM/YY" required style="width: 100px;">
+                </div>
+                <div class="form-group">
+                    <label>CVV</label>
+                    <input type="text" placeholder="123" required pattern="\d{3,4}" style="width: 80px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Cardholder Name</label>
+                <input type="text" placeholder="Name on Card" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Pay Now</button>
+            <button type="button" onclick="closeCardModal()" class="btn btn-outline"
+                style="width:100%; margin-top:0.5rem;">Cancel</button>
+        </form>
+    </div>
+
+    <script src="js/app.js?v=1.2"></script>
+    <script src="js/modern_ui.js"></script>
+    <script>
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure Sidebar renders for Farmer
+            if (!localStorage.getItem('user_role')) localStorage.setItem('user_role', 'farmer');
+
+            // Initial Loaders
+            checkAuth(); // Assuming checkAuth is in app.js or modern_ui.js
+            // loadWeather();
+            // loadHistory();
+            // loadMarketplace();
+        });
+    </script>
+</body>
+
+</html>

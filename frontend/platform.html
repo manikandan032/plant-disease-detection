@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAgri AI | Intelligent Agriculture Platform</title>
+    <link rel="stylesheet" href="css/modern_ui.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="brand">
+            <i class="fa-solid fa-wheat-awn"></i> SmartAgri AI
+        </div>
+
+        <ul class="nav-menu" id="nav-menu">
+            <!-- Items injected by JS based on Role -->
+            <li><a href="#" class="nav-link active" data-target="dashboard-view">Dashboard</a></li>
+            <li><a href="#" class="nav-link" data-target="detection-view">Disease Detection</a></li>
+            <li><a href="#" class="nav-link" data-target="recommendation-view">Recommendations</a></li>
+            <li><a href="#" class="nav-link" data-target="marketplace-view">Marketplace</a></li>
+            <li><a href="#" class="nav-link" data-target="chatbot-view">AI Chatbot</a></li>
+        </ul>
+
+        <div class="nav-right">
+            <div class="role-badge" id="user-role-badge">Farmer</div>
+            <div class="btn-profile" id="profile-btn"
+                style="background-image: url('https://i.pravatar.cc/150?img=11');"></div>
+            <button class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.9rem;"
+                onclick="logout()">Logout</button>
+        </div>
+
+        <div class="hamburger" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+    </nav>
+
+    <div class="main-container">
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-view" class="view-section active">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard Overview</h1>
+                <p style="color: #fff; opacity: 0.9;">Welcome back, <span id="user-name">John Doe</span></p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="glass-card stat-card">
+                    <h3><i class="fa-solid fa-cloud-sun"></i> Weather</h3>
+                    <div class="value">24°C</div>
+                    <p>Sunny, Humidity: 45%</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3><i class="fa-solid fa-seedling"></i> Active Crops</h3>
+                    <div class="value">3 Types</div>
+                    <p>Wheat, Corn, Tomato</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3><i class="fa-solid fa-stethoscope"></i> Recent Scans</h3>
+                    <div class="value">12</div>
+                    <p>Last scan: Healthy</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3><i class="fa-solid fa-cart-shopping"></i> Pending Orders</h3>
+                    <div class="value">2</div>
+                    <p>Fertilizers on the way</p>
+                </div>
+            </div>
+
+            <!-- Crop Health Chart Section (Mock) -->
+            <div class="glass-card" style="min-height: 400px;">
+                <h3 style="margin-bottom: 1rem; color: var(--dark-green);">Crop Health Trends</h3>
+                <div
+                    style="width: 100%; height: 300px; background: rgba(0,0,0,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <p style="color: var(--text-muted);">[Chart.js Integration Placeholder]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DISEASE DETECTION VIEW -->
+        <div id="detection-view" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Disease Detection</h1>
+            </div>
+
+            <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+                <h2 style="margin-bottom: 1rem; text-align: center; color: var(--dark-green);">Upload Plant/Leaf Image
+                </h2>
+                <div class="upload-area" id="drop-zone">
+                    <i class="fa-solid fa-cloud-arrow-up"
+                        style="font-size: 3rem; color: var(--primary-green); margin-bottom: 1rem;"></i>
+                    <h3>Drag & Drop or Click to Upload</h3>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Supports JPG, PNG (Max 5MB)</p>
+                    <input type="file" id="file-input" hidden>
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 2rem;">Analyze Image</button>
+            </div>
+        </div>
+
+        <!-- MARKETPLACE VIEW -->
+        <div id="marketplace-view" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Agricultural Marketplace</h1>
+            </div>
+
+            <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+                <input type="text" class="modern-input" style="max-width: 300px; margin-bottom: 0;"
+                    placeholder="Search fertilizers, tools...">
+                <button class="btn-primary">Search</button>
+            </div>
+
+            <div class="product-grid">
+                <!-- Mock Product 1 -->
+                <div class="glass-card product-card">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=600&auto=format&fit=crop"
+                            class="product-img" alt="Fertilizer">
+                        <h3 style="color: var(--dark-green);">Organic Nitrogen Boost</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Premium organic
+                            fertilizer for rapid growth.</p>
+                        <h4 style="margin-top: 0.5rem; font-size: 1.2rem;">$25.00</h4>
+                    </div>
+                    <button class="btn-primary" style="margin-top: 1rem; width: 100%;">Add to Cart</button>
+                </div>
+                <!-- Mock Product 2 -->
+                <div class="glass-card product-card">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?q=80&w=600&auto=format&fit=crop"
+                            class="product-img" alt="Pesticide">
+                        <h3 style="color: var(--dark-green);">Eco-Safe Pesticide</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Safe for bees,
+                            deadly for pests.</p>
+                        <h4 style="margin-top: 0.5rem; font-size: 1.2rem;">$18.50</h4>
+                    </div>
+                    <button class="btn-primary" style="margin-top: 1rem; width: 100%;">Add to Cart</button>
+                </div>
+                <!-- Mock Product 3 -->
+                <div class="glass-card product-card">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1615811361523-6bd03c779979?q=80&w=600&auto=format&fit=crop"
+                            class="product-img" alt="Seeds">
+                        <h3 style="color: var(--dark-green);">Hybrid Wheat Seeds</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">High-yield,
+                            drought-resistant seeds.</p>
+                        <h4 style="margin-top: 0.5rem; font-size: 1.2rem;">$40.00</h4>
+                    </div>
+                    <button class="btn-primary" style="margin-top: 1rem; width: 100%;">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECOMMENDATION VIEW -->
+        <div id="recommendation-view" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Smart Recommendations</h1>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-lightbulb" style="color: #f1c40f;"></i> AI
+                    Suggestions based on recent analysis</h3>
+
+                <div style="border-left: 4px solid var(--primary-green); padding-left: 1rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--dark-green);">Rotate Crops</h4>
+                    <p>Based on your soil nutrient depletion, it is recommended to plant legumes next season.</p>
+                </div>
+
+                <div style="border-left: 4px solid var(--accent-green); padding-left: 1rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--dark-green);">Watering Schedule</h4>
+                    <p>Increase irrigation for the next 3 days due to expected heatwave.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHATBOT VIEW -->
+        <div id="chatbot-view" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">AI Agriculture Assistant</h1>
+            </div>
+
+            <div class="glass-card" style="height: 600px; display: flex; flex-direction: column;">
+                <div
+                    style="flex-grow: 1; overflow-y: auto; padding: 1rem; border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Messages -->
+                    <div
+                        style="align-self: flex-start; background: rgba(255,255,255,0.8); padding: 0.8rem 1.2rem; border-radius: 15px 15px 15px 0; max-width: 80%;">
+                        Hello! I am your SmartAgri AI. How can I help you today?
+                    </div>
+                    <div
+                        style="align-self: flex-end; background: var(--primary-green); color: white; padding: 0.8rem 1.2rem; border-radius: 15px 15px 0 15px; max-width: 80%;">
+                        What fertilizer should I use for yellowing leaves?
+                    </div>
+                    <div
+                        style="align-self: flex-start; background: rgba(255,255,255,0.8); padding: 0.8rem 1.2rem; border-radius: 15px 15px 15px 0; max-width: 80%;">
+                        Yellowing leaves can indicate nitrogen deficiency. I recommend using a nitrogen-rich fertilizer
+                        like Urea or Ammonium Nitrate.
+                    </div>
+                </div>
+                <div style="padding: 1rem; display: flex; gap: 1rem;">
+                    <input type="text" class="modern-input" style="margin-bottom: 0;"
+                        placeholder="Ask me anything about your farm...">
+                    <button class="btn-primary" style="padding: 0 1.5rem;"><i
+                            class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/modern_ui.js"></script>
+</body>
+
+</html>

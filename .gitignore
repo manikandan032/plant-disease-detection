@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+backend/venv/
+venv/
+
+# Logs and temporary files
+*.log
+*.tmp
+db_result.txt
+fix_log.txt
+init_log.txt
+verify_db.txt
+
+# Data, models and uploads (do not commit large binaries)
+backend/app/ai_engine/*.h5
+plant image/
+uploads/
+
+# Environment files
+.env
+.env.*
+
+# Byte-compiled / distribution
+*.egg-info/
+dist/
+build/

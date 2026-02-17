@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PlantShield</title>
+    <link rel="stylesheet" href="css/style.css?v=1.3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="app-layout">
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <main class="main-content">
+
+            <!-- 1. Database / Analytics Stats -->
+            <div id="asec-analytics" class="view-section dashboard-grid">
+                <!-- Stats Cards -->
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3>Total Users</h3>
+                    <h1 style="color: var(--primary); font-size: 3rem;">1,250</h1>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3>Total Scans</h3>
+                    <h1 style="color: var(--secondary); font-size: 3rem;">15.4K</h1>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3>Diseases Detected</h3>
+                    <h1 style="color: var(--danger); font-size: 3rem;">856</h1>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3>Model Accuracy</h3>
+                    <h1 style="color: var(--accent); font-size: 3rem;">94.2%</h1>
+                </div>
+
+                <!-- Charts -->
+                <div class="glass-panel" style="grid-column: 1 / -1; padding: 2rem;">
+                    <h3>Disease Detection Trends</h3>
+                    <div style="height: 350px;">
+                        <canvas id="adminDiseaseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. User Management -->
+            <div id="asec-users" class="view-section hidden">
+                <h2 class="glass-border-bottom" style="margin-bottom: 2rem;"><i class="fa-solid fa-users-gear"></i> User
+                    Management</h2>
+                <div class="glass-panel">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <th style="padding: 1rem;">Details</th>
+                                <th style="padding: 1rem;">Role</th>
+                                <th style="padding: 1rem;">Status</th>
+                                <th style="padding: 1rem;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list">
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. Disease Knowledge Base -->
+            <div id="asec-database" class="view-section hidden">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 2rem;">
+                    <h2><i class="fa-solid fa-book-medical"></i> Disease Knowledge Base</h2>
+                    <button class="btn btn-primary" onclick="openDiseaseModal()">+ Add Disease</button>
+                </div>
+                <!-- List -->
+                <div id="disease-kb-list" style="display: grid; gap: 1rem;">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+            <!-- Add/Edit Disease Modal -->
+    <div id="disease-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDiseaseModal()">&times;</span>
+            <h2 id="modal-title" style="margin-bottom: 1.5rem;">Add New Disease</h2>
+            <form id="disease-form" onsubmit="saveDisease(event)">
+                <div class="form-group">
+                    <label>Disease Name</label>
+                    <input type="text" id="d-name" required placeholder="e.g. Tomato Early Blight">
+                </div>
+                <div class="form-group">
+                    <label>Crop Name</label>
+                    <input type="text" id="d-crop" required placeholder="e.g. Tomato">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="d-desc" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Symptoms</label>
+                    <textarea id="d-symptoms" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Treatment</label>
+                    <textarea id="d-treatment" required rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save to Knowledge Base</button>
+            </form>
+        </div>
+    </div>
+            <!-- 4. Reports -->
+            <div id="asec-reports" class="view-section hidden">
+                <h2><i class="fa-solid fa-file-pdf"></i> Reports & Logs</h2>
+                <div class="glass-panel" style="padding: 2rem; margin-top: 1rem;">
+                    <h3>Generate Report</h3>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-primary">Download Monthly Report (PDF)</button>
+                        <button class="btn btn-outline">Export Data (CSV)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Settings -->
+            <div id="asec-settings" class="view-section hidden">
+                <h2><i class="fa-solid fa-gears"></i> System Settings</h2>
+                <div class="glass-panel" style="padding: 2rem; max-width: 600px; margin-top: 1rem;">
+                    <div class="form-group">
+                        <label for="model-version">AI Model Version</label>
+                        <select id="model-version">
+                            <option>v2.1 (Latest)</option>
+                            <option>v2.0 (Stable)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Alert Threshold (Confidence)</label>
+                        <input type="range" min="0" max="100" value="70">
+                    </div>
+                    <div class="form-group">
+                        <label>Change Admin Password</label>
+                        <input type="password" id="admin-password" placeholder="Leave blank to keep current">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateAdminSettings()">Save Config</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    
+
+    <script src="js/app.js?v=1.2"></script>
+    <script src="js/modern_ui.js"></script>
+</body>
+
+</html>
